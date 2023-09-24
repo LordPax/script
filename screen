@@ -39,6 +39,7 @@ function getConnectedScreen() {
     xrandr | grep " connected" | awk '{print $1}'
 }
 
+# getScreenMode <screen>
 function getScreenMode() {
     [ "$1" == "" ] && exit 1
     xrandr \
