@@ -1,16 +1,20 @@
 #!/bin/bash
+# author : lordpax
+# screen v1.0
 
-mode=0
+action=0
+ignoreScreen="eDP-1|None"
+version="v1.0"
 
 # info <msg>
 function info() {
-    [ "$1" == "" ] && exit 1
+    [ -z "$1" ] && exit 1
     notify-send "Info" "$1"
 }
 
 # error <msg>
 function error() {
-    [ "$1" == "" ] && exit 1
+    [ -z "$1" ] && exit 1
     notify-send "Error" "$1"
 }
 
@@ -25,6 +29,7 @@ function helpFunc() {
 
 Option:
 -h or --help .................... Show this help message and exit
+-v or --version ................. Show version
 -c or --connect ................. Connect a screen
 -d or --disconnect .............. Disconnect a screen
 -s or --status .................. Show the status of the screen"
@@ -36,16 +41,19 @@ function verification() {
 }
 
 function getConnectedScreen() {
-    xrandr | grep " connected" | awk '{print $1}'
+    xrandr | \
+        grep " connected" | \
+        awk '{print $1}' | \
+        grep -Ev "$ignoreScreen"
 }
 
 # getScreenMode <screen>
 function getScreenMode() {
     [ "$1" == "" ] && exit 1
-    xrandr \
-        | awk -v monitor="^HDMI-1 connected" '/connected/ {p = 0} $0 ~ monitor {p = 1} p' \
-        | grep -v " connected" \
-        | grep -oP '\d+x\d+'
+    xrandr | \
+        awk -v monitor="^$1 connected" '/connected/ {p = 0} $0 ~ monitor {p = 1} p' | \
+        grep -v " connected" | \
+        grep -oP '\d+x\d+'
 }
 
 function connectScreen() {
@@ -64,7 +72,7 @@ function connectScreen() {
     local modeList=$(getScreenMode "$screen")
     local mode=$(echo -e "auto\n$modeList" | rofi -dmenu -p "Choose mode")
     [ "$mode" == "" ] && exit 1
-    local commande=$([ "$mode" != "auto" ] && echo "$commande --mode $mode" || echo "$commande --auto")
+    commande=$([ "$mode" != "auto" ] && echo "$commande --mode $mode" || echo "$commande --auto")
 
     local side=$(echo -e "$sideList"| rofi -dmenu -p "Choose side")
     [ "$side" == "" ] && exit 1
@@ -82,7 +90,6 @@ function connectScreen() {
     [ "$rotation" == "" ] && exit 1
     [ "$rotation" != "none" ] && commande="$commande --rotate $rotation"
 
-    # echo "$commande"
     if $commande; then
         info "Screen connected" 
     else
@@ -97,7 +104,6 @@ function disconnectScreen() {
     local screen=$(echo "$screens" | rofi -dmenu -p "Disconnect a screen")
     [ "$screen" == "" ] && exit 1
 
-    # echo "xrandr --output $screen --off"
     if xrandr --output "$screen" --off; then
         info "Screen disconnected"
     else
@@ -105,20 +111,21 @@ function disconnectScreen() {
     fi
 }
 
-verification
-
 if [ $# -ge 1 ]; then
     for i in $(seq 1 $#); do
         case $1 in
             -h | --help)
                 helpFunc
                 exit 0;;
+            -v | --version)
+                echo "$version"
+                exit 0;;
             -c | --connect)
-                mode=1;;
+                action=1;;
             -d | --disconnect)
-                mode=2;;
+                action=2;;
             -s | --status)
-                mode=3;;
+                action=3;;
             "");;
             *)
                 echo_err "Unknown parameter $1"
@@ -128,13 +135,15 @@ if [ $# -ge 1 ]; then
     done
 fi
 
-case $mode in
+verification
+
+case $action in
     1)
         connectScreen;;
     2)
         disconnectScreen;;
     3)
-        getConnectedScreen;;
+        xrandr --listmonitors;;
     *)
         helpFunc
         exit 1;;
