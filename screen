@@ -1,6 +1,6 @@
 #!/bin/bash
 # author : lordpax
-# screen v1.0
+# screen v1.1
 
 action=0
 ignoreScreen="eDP-1|None"
@@ -36,15 +36,19 @@ Option:
 }
 
 function verification() {
-    [ -z "$(which rofi 2> /dev/null)" ] && echo_err "\"rofi\" is required" && exit 1
-    [ -z "$(which notify-send 2> /dev/null)" ] && echo_err "\"notify-send\" is required" && exit 1
+    [ -z "$(which rofi 2> /dev/null)" ] && error "\"rofi\" is required" && exit 1
+    [ -z "$(which notify-send 2> /dev/null)" ] && error "\"notify-send\" is required" && exit 1
 }
 
+# getConnectedScreen [ignore]
 function getConnectedScreen() {
-    xrandr | \
-        grep " connected" | \
-        awk '{print $1}' | \
-        grep -Ev "$ignoreScreen"
+    local scr=$(
+        xrandr | \
+            grep " connected" | \
+            awk '{print $1}'
+    )
+
+    [ "$1" != "" ] && echo "$scr" | grep -vE "$1" || echo "$scr"
 }
 
 # getScreenMode <screen>
@@ -61,7 +65,7 @@ function connectScreen() {
     local rotationList="none\nnormal\nleft\nright\ninverted"
     local commande="xrandr"
 
-    local screens=$(getConnectedScreen)
+    local screens=$(getConnectedScreen "$ignoreScreen")
     [ "$screens" == "" ] && error "No screen found" && exit 1
 
     local screen=$(echo "$screens" | rofi -dmenu -p "Connect a screen")
@@ -77,7 +81,7 @@ function connectScreen() {
     local side=$(echo -e "$sideList"| rofi -dmenu -p "Choose side")
     [ "$side" == "" ] && exit 1
     if [ "$side" != "none" ]; then
-        local otherScreens=$(echo "$screens" | grep -v "$screen")
+        local otherScreens=$(getConnectedScreen "^$screen$")
         [ "$otherScreens" == "" ] && exit 1
 
         local otherScreen=$(echo "$otherScreens" | rofi -dmenu -p "Screen side")
@@ -98,7 +102,7 @@ function connectScreen() {
 }
 
 function disconnectScreen() {
-    local screens=$(getConnectedScreen)
+    local screens=$(getConnectedScreen "$ignoreScreen")
     [ "$screens" == "" ] && error "No screen found" && exit 1
 
     local screen=$(echo "$screens" | rofi -dmenu -p "Disconnect a screen")

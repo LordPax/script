@@ -94,7 +94,7 @@ verification
 
 case $action in
     1)
-        brightness "$param";;
+        brightness $param;;
     2)
         setBrightness "$param";;
     3)
