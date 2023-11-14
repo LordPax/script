@@ -48,6 +48,8 @@ function applyBackground() {
 # updateBackground <imagePath>
 function updateBackground() {
     [ ! -f "$choosenImage" ] && error "File \"$1\" not found" && exit 1
+    [ ! -d "$wallpaperPath" ] && mkdir -p "$wallpaperPath"
+    [ -f "$defaultImage" ] && unlink "$defaultImage"
     ln -s "$choosenImage" "$defaultImage" && info "Background updated"
 }
 
@@ -64,12 +66,11 @@ if [ $# -ge 1 ]; then
                 action=1;;
             -u | --update)
                 action=2
-                echo "$2"
                 choosenImage="$2"
                 shift;;
             "");;
             *)
-                echo_err "Unknown parameter $1"
+                echo_err "Unknown parameter \"$1\""
                 exit 1;;
         esac
         shift
