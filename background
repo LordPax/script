@@ -45,9 +45,9 @@ function applyBackground() {
     feh --bg-scale "$defaultImage"
 }
 
-# updateBackground <imagePath>
+# updateBackground
 function updateBackground() {
-    [ ! -f "$choosenImage" ] && error "File \"$1\" not found" && exit 1
+    [ ! -f "$choosenImage" ] && error "File \"$choosenImage\" not found" && exit 1
     [ ! -d "$wallpaperPath" ] && mkdir -p "$wallpaperPath"
     [ -f "$defaultImage" ] && unlink "$defaultImage"
     ln -s "$choosenImage" "$defaultImage" && info "Background updated"
@@ -82,7 +82,7 @@ case $action in
     1)
         applyBackground;;
     2)
-        updateBackground "$choosenImage";;
+        updateBackground;;
     *)
         helpFunc
         exit 0;;
