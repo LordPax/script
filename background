@@ -78,6 +78,7 @@ if [ $# -ge 1 ]; then
 fi
 
 verification
+
 case $action in
     1)
         applyBackground;;
