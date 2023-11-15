@@ -60,17 +60,15 @@ function updateBackground() {
 
 function selectBackground() {
     [ ! -d "$wallpaperPath" ] && error "Directory \"$wallpaperPath\" not found" && exit 1
-    # choosenImage=$(find "$wallpaperPath" -type f | rofi -dmenu -i -p "Select background")
+
     local image=$(
         ls "$wallpaperPath" |\
         grep -v default |\
         rofi -dmenu -i -p "Select background"
     )
-    choosenImage="$wallpaperPath/$image"
-    [ -z "$choosenImage" ] && exit 0
+    [ -z "$image" ] && exit 0
 
-    updateBackground
-    applyBackground
+    choosenImage="$wallpaperPath/$image"
 }
 
 if [ $# -ge 1 ]; then
@@ -107,7 +105,9 @@ case $action in
     2)
         updateBackground;;
     3)
-        selectBackground;;
+        selectBackground
+        updateBackground
+        applyBackground;;
     *)
         helpFunc
         exit 0;;
