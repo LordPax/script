@@ -1,11 +1,11 @@
 #!/bin/bash
 # author : lordpax
-# background v1.1.0
+# background v1.1.1
 
 wallpaperPath="$HOME/Images/wallpaper"
 defaultImage="$wallpaperPath/default"
 choosenImage=""
-version="1.1.0"
+version="1.1.1"
 action=0
 
 # info <msg>
@@ -54,13 +54,21 @@ function updateBackground() {
     [ ! -f "$choosenImage" ] && error "File \"$choosenImage\" not found" && exit 1
     [ ! -d "$wallpaperPath" ] && mkdir -p "$wallpaperPath"
     [ -f "$defaultImage" ] && unlink "$defaultImage"
+
     ln -s "$choosenImage" "$defaultImage" && info "Background updated"
 }
 
 function selectBackground() {
     [ ! -d "$wallpaperPath" ] && error "Directory \"$wallpaperPath\" not found" && exit 1
-    choosenImage=$(find "$wallpaperPath" -type f | rofi -dmenu -i -p "Select background")
+    # choosenImage=$(find "$wallpaperPath" -type f | rofi -dmenu -i -p "Select background")
+    local image=$(
+        ls "$wallpaperPath" |\
+        grep -v default |\
+        rofi -dmenu -i -p "Select background"
+    )
+    choosenImage="$wallpaperPath/$image"
     [ -z "$choosenImage" ] && exit 0
+
     updateBackground
     applyBackground
 }
