@@ -43,13 +43,11 @@ function verification() {
     [ -z "$(which rofi 2> /dev/null)" ] && error "\"rofi\" is required" && exit 1
 }
 
-# updateBackground <imagePath>
 function applyBackground() {
     [ ! -f "$defaultImage" ] && error "File \"$defaultImage\" not found" && exit 1
     feh --bg-scale "$defaultImage"
 }
 
-# updateBackground
 function updateBackground() {
     [ ! -f "$choosenImage" ] && error "File \"$choosenImage\" not found" && exit 1
     [ ! -d "$wallpaperPath" ] && mkdir -p "$wallpaperPath"
