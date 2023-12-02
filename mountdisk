@@ -61,16 +61,24 @@ function umountFunc() {
 }
 
 function mountDisk() {
-    local mountable=$(lsblk -lp | \
+    local mountable=$(\
+        lsblk -lp | \
         grep -E "(part|disk|rom) *$" | \
         awk '{print $1, "(" $4 ")"}'
     )
     [ "$mountable" = "" ] && error "No mountable disks found" && exit 1
 
     local encryptedMsg=$([ $crypt -ne 0 ] && echo " encrypted" || echo "")
-    local diskToMount=$(echo -e "$mountable" | rofi -dmenu -p "Mount which$encryptedMsg disk" | awk '{print $1}')
+    local diskToMount=$(\
+        echo -e "$mountable" | \
+        rofi -dmenu -p "Mount which$encryptedMsg disk" | \
+        awk '{print $1}'
+    )
     [ "$diskToMount" = "" ] && exit 1
-    local mountPoint=$(find /media -maxdepth 1 -type d 2> /dev/null | rofi -dmenu -p "Mount to which directory")
+    local mountPoint=$(\
+        find /media -maxdepth 1 -type d 2> /dev/null | \
+        rofi -dmenu -p "Mount to which directory"
+    )
     [ "$mountPoint" = "" ] && exit 1
 
     [ ! -d "$mountPoint" ] && mkdir -p "$mountPoint"
@@ -85,13 +93,15 @@ function mountDisk() {
 
 function umountDisk() {
     if [ $crypt -eq 0 ]; then
-        local mounted=$(lsblk -lp | \
+        local mounted=$(\
+            lsblk -lp | \
             grep -E "(part|disk|rom) */" | \
             grep -Ev "$noUmountRegex" | \
             awk '{print $1, "(" $4 ")"}'
         )
     else
-        local mounted=$(lsblk -lp | \
+        local mounted=$(\
+            lsblk -lp | \
             grep "dm */" | \
             awk '{print $7, "(" $4 ")"}'
         )
@@ -99,7 +109,11 @@ function umountDisk() {
     [ "$mounted" = "" ] && error "No mounted disks found" && exit 1
 
     local encryptedMsg=$([ $crypt -ne 0 ] && echo " encrypted" || echo "")
-    local diskToUmount=$(echo -e "$mounted" | rofi -dmenu -p "Umount which$encryptedMsg disk" | awk '{print $1}')
+    local diskToUmount=$(\
+        echo -e "$mounted" | \
+        rofi -dmenu -p "Umount which$encryptedMsg disk" | \
+        awk '{print $1}'\
+    )
     [ "$diskToUmount" = "" ] && exit 1
 
     if umountFunc "$diskToUmount"; then
@@ -111,7 +125,7 @@ function umountDisk() {
 }
 
 if [ $# -ge 1 ]; then
-    for i in $(seq 1 $#); do
+    for _ in $(seq 1 $#); do
         case $1 in
             -h | --help)
                 helpFunc
