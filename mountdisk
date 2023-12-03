@@ -9,16 +9,14 @@ mode=0
 
 # info [msg]
 function info() {
-    local msg=$([ -z "$1" ] && cat /dev/stdin || echo "$1")
-    [ -z "$msg" ] && exit 1
+    [ -z "$1" ] && exit 1
     notify-send "Info" "$1"
 }
 
 # error [msg]
 function error() {
-    local msg=$([ -z "$1" ] && cat /dev/stdin || echo "$1")
-    [ -z "$msg" ] && exit 1
-    notify-send "Error" "$msg"
+    [ -z "$1" ] && exit 1
+    notify-send "Error" "$1"
 }
 
 # echo_err <msg>
@@ -33,7 +31,7 @@ function helpFunc() {
 Option:
 -h or --help .................... Show this help message and exit
 -v or --veracrypt ............... Use veracrypt
--l or --luks .................... Use luks (with cryptsetup) (not implemented yet)
+-l or --luks .................... Use luks (with cryptsetup)
 -c or --choice .................. Choose between veracrypt, luks, or none
 -m or --mount ................... Mount the disk
 -u or --umount .................. Unmount the disk"
