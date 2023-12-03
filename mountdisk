@@ -25,6 +25,25 @@ function echo_err() {
     echo -e "\e[31mERROR :\e[0m $1" > /dev/stderr
 }
 
+function checkDependencies() {
+    local dependencies="rofi veracrypt cryptsetup zenity"
+    for dependency in $dependencies; do
+        ! command -v "$dependency" > /dev/null 2>&1 && \
+            echo_err "Dependency \"$dependency\" not found" && exit 1
+    done
+}
+
+# randomString <length>
+function randomString() {
+    [ -z "$1" ] && exit 1
+    local string=$(\
+        tr -dc 'a-zA-Z0-9' < /dev/urandom | \
+        fold -w "$1" | \
+        head -n 1
+    )
+    echo "$string"
+}
+
 function helpFunc() {
     echo "Usage: $(basename "$0") [options]
 
@@ -43,12 +62,7 @@ function mountFunc() {
     if [ $crypt -eq 1 ]; then
         veracrypt "$1" "$2"
     elif [ $crypt -eq 2 ]; then
-        local luksName=$(\
-            zenity --entry \
-            --title="Name for luks partition" \
-            --text="Name for luks partition"
-        )
-        [ -z "$luksName" ] && exit 1
+        local luksName=$(randomString 5)
 
         local password=$(\
             zenity --password \
@@ -154,6 +168,8 @@ function umountDisk() {
         exit 1
     fi
 }
+
+checkDependencies
 
 for _ in $(seq 1 $#); do
     case $1 in
