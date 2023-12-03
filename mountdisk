@@ -7,13 +7,13 @@ encryption="none\nveracrypt\nluks"
 crypt=0 # 0: no, 1: veracrypt, 2: luks
 mode=0
 
-# info [msg]
+# info <msg>
 function info() {
     [ -z "$1" ] && exit 1
     notify-send "Info" "$1"
 }
 
-# error [msg]
+# error <msg>
 function error() {
     [ -z "$1" ] && exit 1
     notify-send "Error" "$1"
