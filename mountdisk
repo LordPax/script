@@ -2,7 +2,7 @@
 
 uid=$(id -u)
 gid=$(id -g)
-noUmountRegex="(/$|/boot|/home|/perso|/save)"
+noUmountRegex="/(boot|home|perso|save)?"
 encryption="none\nveracrypt\nluks"
 crypt=0 # 0: no, 1: veracrypt, 2: luks
 mode=0
