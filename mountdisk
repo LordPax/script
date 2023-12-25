@@ -36,12 +36,9 @@ function checkDependencies() {
 # randomString <length>
 function randomString() {
     [ -z "$1" ] && exit 1
-    local string=$(\
-        tr -dc 'a-zA-Z0-9' < /dev/urandom | \
+    tr -dc 'a-zA-Z0-9' < /dev/urandom | \
         fold -w "$1" | \
         head -n 1
-    )
-    echo "$string"
 }
 
 function helpFunc() {
