@@ -113,6 +113,7 @@ function connectScreen() {
     [ "$rotation" != "none" ] && commande="$commande --rotate $rotation"
 
     if $commande; then
+        sleep 1
         info "Screen connected" 
         i3-msg "restart"
     else
@@ -128,6 +129,7 @@ function disconnectScreen() {
     [ -z "$screen" ] && exit 1
 
     if xrandr --output "$screen" --off; then
+        sleep 1
         info "Screen disconnected"
         i3-msg "restart"
     else
