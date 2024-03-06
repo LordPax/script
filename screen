@@ -162,6 +162,7 @@ function screenPresetWork() {
             xrandr --output DP3 --off;;
     esac
 
+    sleep 1
     i3-msg "restart"
 }
 
@@ -182,6 +183,7 @@ function screenPresetHouse() {
             xrandr --output DP3 --off;;
     esac
 
+    sleep 1
     i3-msg "restart"
 }
 
