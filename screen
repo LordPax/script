@@ -91,13 +91,20 @@ function connectScreen() {
     local screen=$(echo -e "$screens\n$presets" | rofi -dmenu -p "Connect a screen")
     [ -z "$screen" ] && exit 1
 
-    echo -e "$presets" | grep -q "$screen" && $screen && exit 0
+    if echo -e "$presets" | grep -q "$screen"; then
+        $screen
+        sleep 1
+        info "Preset applied"
+        i3-msg "restart"
+        exit 0
+    fi
 
     commande="$commande --output $screen"
 
     local modeList=$(getScreenMode "$screen")
     local mode=$(echo -e "auto\n$modeList" | rofi -dmenu -p "Choose mode")
     [ -z "$mode" ] && exit 1
+
     commande=$([ "$mode" != "auto" ] && echo "$commande --mode $mode" || echo "$commande --auto")
 
     local side=$(echo -e "$sideList"| rofi -dmenu -p "Choose side")
@@ -144,10 +151,10 @@ function disconnectScreen() {
 # preset for work on laptop with 2 screens
 function screenPresetWork() {
     local screens=$(getConnectedScreen all "$ignoreScreen")
-    [ -z "$screens" ] && error "No screen found" && exit 1
+    [ -z "$screens" ] && error "Preset : No screen found" && exit 1
 
     echo -e "$screens" | grep -Evq "eDP1|DP1|DP3" && \
-        error "No screen found" && exit 1
+        error "Preset : Required screen \"eDP1, DP1, DP3\" not found" && exit 1
 
     local choosePreset=$(echo -e "enable\ndisable" | rofi -dmenu -p "Choose preset")
 
@@ -161,18 +168,15 @@ function screenPresetWork() {
             xrandr --output DP1 --off
             xrandr --output DP3 --off;;
     esac
-
-    sleep 1
-    i3-msg "restart"
 }
 
 # preset for house on laptop with 2 screens
 function screenPresetHouse() {
     local screens=$(getConnectedScreen all "$ignoreScreen")
-    [ -z "$screens" ] && error "No screen found" && exit 1
+    [ -z "$screens" ] && error "Preset : No screen found" && exit 1
 
     echo -e "$screens" | grep -Evq "eDP1|DP3" && \
-        error "No screen found" && exit 1
+        error "Preset : Required screen \"eDP1, DP3\" not found" && exit 1
 
     local choosePreset=$(echo -e "enable\ndisable" | rofi -dmenu -p "Choose preset")
 
@@ -182,9 +186,6 @@ function screenPresetHouse() {
         disable)
             xrandr --output DP3 --off;;
     esac
-
-    sleep 1
-    i3-msg "restart"
 }
 
 function main() {
