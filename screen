@@ -147,7 +147,6 @@ function disconnectScreen() {
 
 # loadPreset <preset> [enable|disable]
 function loadPreset() {
-    echo "loadPreset : $1 $2"
     local preset="$1"
     [ -z "$preset" ] && exit 1
 
