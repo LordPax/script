@@ -177,7 +177,7 @@ function screenPresetWork() {
     case $choosePreset in
         enable)
             xrandr --output DP4 --auto --right-of eDP1
-            xrandr --output DP3 --auto --right-of DP4
+            xrandr --output DP3 --auto --right-of DP4 --scale 1.3125
             xrandr --output eDP1 --off;;
         disable)
             xrandr --output eDP1 --auto
