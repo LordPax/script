@@ -1,9 +1,9 @@
 #!/bin/bash
 # author : lordpax
-# screen v1.3
+# screen v1.4
 
 ignoreScreen="None"
-version="v1.3"
+version="v1.4"
 dependencies="rofi notify-send i3-msg xrandr awk grep seq"
 presets="screenPresetWork\nscreenPresetStartup"
 name=$(basename "$0")
@@ -52,10 +52,7 @@ function checkDependencies() {
 function getConnectedScreen() {
     [ -z "$1" ] && exit 1
 
-    local scr=$(
-        xrandr | \
-        grep " connected"
-    )
+    local scr=$(xrandr | grep " connected")
 
     case $1 in
         primary)
@@ -93,7 +90,7 @@ function connectScreen() {
     [ -z "$screen" ] && exit 1
 
     if echo -e "$presets" | grep -q "$screen"; then
-        $screen
+        $screen enable
         sleep 1
         info "Preset applied"
         i3-msg "restart"
@@ -135,8 +132,16 @@ function disconnectScreen() {
     local screens=$(getConnectedScreen all "$ignoreScreen")
     [ -z "$screens" ] && error "No screen found" && exit 1
 
-    local screen=$(echo "$screens" | rofi -dmenu -p "Disconnect a screen")
+    local screen=$(echo -e "$screens\n$presets" | rofi -dmenu -p "Disconnect a screen")
     [ -z "$screen" ] && exit 1
+
+    if echo -e "$presets" | grep -q "$screen"; then
+        $screen disable
+        sleep 1
+        info "Preset disabled"
+        i3-msg "restart"
+        exit 0
+    fi
 
     ! xrandr --output "$screen" --off && \
         error "Screen not disconnected" && exit 1
