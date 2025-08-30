@@ -5,7 +5,7 @@
 ignoreScreen="None"
 version="v1.4"
 dependencies="rofi notify-send i3-msg xrandr awk grep seq"
-presets="screenPresetWork\nscreenPresetStartup"
+presets="presetWork\npresetStartup"
 name=$(basename "$0")
 
 # info <msg>
@@ -90,10 +90,7 @@ function connectScreen() {
     [ -z "$screen" ] && exit 1
 
     if echo -e "$presets" | grep -q "$screen"; then
-        $screen enable
-        sleep 1
-        info "Preset applied"
-        i3-msg "restart"
+        loadPreset "$screen" enable
         exit 0
     fi
 
@@ -136,10 +133,7 @@ function disconnectScreen() {
     [ -z "$screen" ] && exit 1
 
     if echo -e "$presets" | grep -q "$screen"; then
-        $screen disable
-        sleep 1
-        info "Preset disabled"
-        i3-msg "restart"
+        loadPreset "$screen" disable
         exit 0
     fi
 
@@ -166,8 +160,8 @@ function loadPreset() {
 }
 
 # preset for work on laptop with 2 screens
-# screenPresetWork [enable|disable]
-function screenPresetWork() {
+# presetWork [enable|disable]
+function presetWork() {
     local choosePreset="$1"
     local screens=$(getConnectedScreen all "$ignoreScreen")
     [ -z "$screens" ] && error "Preset : No screen found" && exit 1
@@ -195,8 +189,8 @@ function screenPresetWork() {
 }
 
 # preset for main pc startup
-# screenPresetStartup [enable|disable]
-function screenPresetStartup() {
+# presetStartup [enable|disable]
+function presetStartup() {
     local choosePreset="$1"
     local screens=$(getConnectedScreen all "$ignoreScreen")
     [ -z "$screens" ] && error "Preset : No screen found" && exit 1
